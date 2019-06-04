@@ -27,7 +27,7 @@ def client(conn, addr, buff):
     while True:
         holder = []
         conn.send(b'sendbuf')
-        length = conn.recv(buff)
+        length = int(str(conn.recv(buff), 'utf-8'))
         print(length)
         conn.send(b'ack')
         data = conn.recv(length)

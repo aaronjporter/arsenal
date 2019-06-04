@@ -27,11 +27,10 @@ def main():
                     tmp = f.read()
                 s.sendall(bytes(tmp))
             elif 'sendbuf' in command:
-                print(output, len(output))
-                s.send(bytes(len(output)))
+                s.send(bytes(str(len(output)), 'utf-8')
             elif 'ack' in command:
                 s.sendall(bytes(output, 'utf-8'))
-        except OSError as err:
+        except socket.error as err:
             print("{0}\n".format(err))
 
 if __name__ == '__main__':
