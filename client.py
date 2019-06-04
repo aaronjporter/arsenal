@@ -10,14 +10,8 @@ def main():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
     while True:
-        try:
-            s.connect((args.server, args.port))
-        except socket.error:
-            for i in range(15, 0, -1):
-                sys.stdout.write("Connection refused, retrying in %d seconds" %i)
-                time.sleep(1)
-            continue
-        break
+        s.connect((args.server, args.port))
+
     while True:
         try:
             received = s.recv(buff).strip().split()
