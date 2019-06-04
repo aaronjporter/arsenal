@@ -1,15 +1,12 @@
 #!/usr/bin/python3
-import socket, sys, os, argparse, asyncio
+import socket, sys, os, argparse
 from _thread import start_new_thread
 parser = argparse.ArgumentParser(description='q*bert says goodbye')
 parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=int)
 parser.add_argument('-s', dest='host', help='Hosting IP')
 args = parser.parse_args()
 
-menu = {'0': 'Arsenal Backdoor', '9999': 'Arsenal backdoor'}
-try:
-    args.host
-except NameError:
+if args.host is None:
     args.host = '0.0.0.0'
 
 def client(conn, addr, buff):
@@ -42,15 +39,11 @@ def main():
             print('[-] Server shutting down...')
             break
 
-async def draw_screen():
+def draw_screen():
     global menu
     os.system('clear')
-    while True:
-        print(menu)
-        sleep(0.1)
+    print(menu)
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_forever()
     main()
