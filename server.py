@@ -24,22 +24,23 @@ def client(conn, addr, buff):
         data = conn.recv(buff)
         print(addr[0]+':\n'+str(data.strip(), 'utf-8'))
         clients[addr[0]] = str(data.strip(), 'utf-8')
-    print(clients)
     while True:
         holder = []
         conn.send(b'sendbuf')
-        length = int(str(conn.recv(buff)), 'utf-8')
+        length = int.from_bytes(conn.recv(buff), 'big')
+        print(length)
         conn.send(b'ack')
         data = conn.recv(length)
-        holder.append(str(data.strip(), 'utf-8'))
-        print(addr[0]+':\n'+''.join(holder))
+        if data == b'NSTR':
+            pass
+        else:
+            holder.append(str(data.strip(), 'utf-8'))
+            print(addr[0]+':\n'+''.join(holder))
         while True:
             try:
                 reply='cmd ' + input('Enter command for %s: ' %addr[0])
             except ValueError:
                 print("Bad input")
-            if 'get_file' in input:
-                start_new_thread(get_file, input.split(' ')[1])
             if input == '':
                 continue
             else:

