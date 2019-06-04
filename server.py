@@ -28,10 +28,10 @@ def client(conn, addr, buff):
     while True:
         holder = []
         conn.send(b'sendbuf')
-        length = conn.recv(buff)
-        while len(''.join(holder)) < int(length):
-            data = conn.recv(buff)
-            holder.append(str(data.strip(), 'utf-8'))
+        length = int(str(conn.recv(buff)), 'utf-8')
+        conn.send(b'ack')
+        data = conn.recv(buff)
+        holder.append(str(data.strip(), 'utf-8'))
         print(addr[0]+':\n'+''.join(holder))
         while True:
             try:

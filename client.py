@@ -10,6 +10,7 @@ def main():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
     s.connect((args.server, args.port))
+    output = ''
     while True:
         try:
             received = s.recv(buff).strip().split()
@@ -28,7 +29,7 @@ def main():
                 with open(command[1]) as f:
                     fs.sendall(bytes(f.read()))
             elif 'sendbuf' in command:
-                s.send(bytes(len(output.stdout))))
+                s.send(bytes(len(output.stdout)))
             elif 'ack' in command:
                 s.sendall(bytes(output.stdout))
         except OSError as err:
@@ -36,8 +37,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-call to server
-provide envars
-await commands
