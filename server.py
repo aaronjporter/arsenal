@@ -27,15 +27,15 @@ def client(conn, addr, buff):
     print(clients)
     while True:
         holder = []
+        conn.send(b'sendbuf')
         length = conn.recv(buff)
-        print(length)
         while len(''.join(holder)) < int(length):
             data = conn.recv(buff)
             holder.append(str(data.strip(), 'utf-8'))
         print(addr[0]+':\n'+''.join(holder))
         while True:
             try:
-                reply=input('Enter command for %s: ' %addr[0])
+                reply='cmd ' + input('Enter command for %s: ' %addr[0])
             except ValueError:
                 print("Bad input")
             if 'get_file' in input:
