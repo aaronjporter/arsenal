@@ -20,7 +20,7 @@ def client(conn, addr, buff):
     while True:
         holder = []
         length = conn.recv(buff)
-        while len(''.join(holder)) < length:
+        while len(''.join(holder)) < int(length):
             data = conn.recv(buff)
             holder.append(str(data.strip(), 'utf-8'))
         print(addr[0]+':\n'+''.join(holder))

