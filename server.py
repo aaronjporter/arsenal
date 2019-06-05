@@ -58,7 +58,9 @@ def client(conn, addr, buff):
             if reply == 'help':
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
-                conn.send(do_encrypt(update_aeskeys()))
+                foo = update_aeskeys()
+                print(foo)
+                conn.send(do_encrypt(foo))
             elif reply.strip() == '':
                 continue
             else:
