@@ -13,6 +13,7 @@ def do_encrypt(message):
         pass
     else:
         message = bytes(message, 'utf-8')
+    message = gzip.compress(message)
     length = 16 - (len(message) % 16)
     message += bytes([length])*length
     obj = AES.new(aeskey, AES.MODE_CBC, aesiv)
@@ -22,7 +23,7 @@ def do_encrypt(message):
 def do_decrypt(ciphertext):
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
-    return message[:-message[-1]]
+    return gzip.decompress(message[:-message[-1]])
 
 def get_data(conn, buff):
     bs = conn.recv(8)
@@ -76,14 +77,16 @@ def main():
                 with open(command[1], 'rb') as f:
                     tmp = f.read()
                 sendit(conn, do_encrypt(tmp))
+            elif 'send_file' in command:
+                data1 = get_data(conn, buff)
+                with open(command[2], 'wb+') as f:
+                    f.write(do_decrypt(data1))
+                sendit(conn, do_encrypt('OK'))
             elif 'aeskey' in command:
                 update_aeskeys(command)
-                timer = 1
                 sendit(conn, do_encrypt('Updated AES key'))
-                conn.close()
-                break
-        except socket.error as err:
-            print("{0}\n".format(err))
+        except Exception as err:
+            sendit(conn, do_encrypt("{0}\n".format(err)))
     return
 
 if __name__ == '__main__':
