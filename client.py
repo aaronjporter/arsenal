@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import socket, sys, os, subprocess, argparse, time
+import socket, sys, os, subprocess, argparse, time, struct
 parser = argparse.ArgumentParser(description='q*bert says hello')
 parser.add_argument('-p', dest='port', required=True, type=int)
 parser.add_argument('-s', dest='server', required=True)
@@ -30,7 +30,7 @@ def main():
             elif 'sendbuf' in command:
                 s.send(bytes(str(len(output)), 'utf-8'))
             elif 'ack' in command:
-                s.sendall(bytes(str(output), 'utf-8'))
+                s.sendall(output)
         except socket.error as err:
             print("{0}\n".format(err))
 

