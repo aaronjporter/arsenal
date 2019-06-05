@@ -17,7 +17,7 @@ def update_aeskeys():
     tmpkey, tmpiv = aeskey, aesiv
     aeskey = os.urandom(32)
     aesiv = os.urandom(16)
-    return str([ b'aeskey', aeskey, aesiv ]), tmpkey, tmpiv
+    return bytes(str([ b'aeskey', aeskey, aesiv ]), 'utf-8'), tmpkey, tmpiv
 
 def do_encrypt(message, tmpkey=aeskey, tmpiv=aesiv):
     if isinstance(message, bytes):
@@ -59,7 +59,6 @@ def client(conn, addr, buff):
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
                 foo = update_aeskeys()
-                print(foo)
                 conn.send(do_encrypt(foo))
             elif reply.strip() == '':
                 continue
