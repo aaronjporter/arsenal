@@ -20,6 +20,7 @@ def update_aeskeys():
     return bytes(str([ b'aeskey', aeskey, aesiv ]), 'utf-8'), tmpkey, tmpiv
 
 def do_encrypt(message, tmpkey=aeskey, tmpiv=aesiv):
+    print(tmpkey, tmpiv)
     if isinstance(message, bytes):
         pass
     else:
@@ -58,8 +59,8 @@ def client(conn, addr, buff):
             if reply == 'help':
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
-                foo = update_aeskeys()
-                conn.send(do_encrypt(foo))
+                foo,bar,bat = update_aeskeys()
+                conn.send(do_encrypt(foo, bar, bat))
             elif reply.strip() == '':
                 continue
             else:

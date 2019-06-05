@@ -48,6 +48,7 @@ def main():
                 sendit(s, bytes(tmp))
             elif 'aeskey' in command:
                 message = ast.literal_eval(message)
+                print(message)
                 aeskey = message[1]
                 aesiv = message[2]
                 sendit(s, 'Updated AES key\n')
