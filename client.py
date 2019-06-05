@@ -9,10 +9,10 @@ args = parser.parse_args()
 aeskey = 'This is a key123'
 aesiv = 'This is an IV456'
 
-def update_aeskeys(key, iv):
+def update_aeskeys():
     global aeskey, aesiv
-    aeskey = key
-    aesiv = iv
+    aeskey = os.urandom(128)
+    aesiv = os.urandom(16)
 
 def do_encrypt(message):
     if isinstance(message, bytes):

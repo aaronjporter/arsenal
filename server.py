@@ -12,10 +12,10 @@ aesiv = 'This is an IV456'
 if args.host is None:
     args.host = '0.0.0.0'
 
-def update_aeskeys(key, iv):
+def update_aeskeys():
     global aeskey, aesiv
-    aeskey = key
-    aesiv = iv
+    aeskey = os.urandom(128)
+    aesiv = os.urandom(16)
     return 'aeskey ' + key + ' ' + iv
 
 def do_encrypt(message):
@@ -54,9 +54,11 @@ def client(conn, addr, buff):
                 reply=input('Enter command for %s: ' %addr[0])
             except ValueError:
                 print("Bad input")
-            if "update_key" in reply:
-                conn.send(do_encrypt(update_aeskeys(reply[1],reply[2]))
-            if reply == '':
+            elif reply == 'help':
+                print('update_key')
+            elif "update_key" in reply:
+                conn.send(do_encrypt(update_aeskeys(reply[1],reply[2])))
+            elif reply == '':
                 continue
             else:
                 conn.send(do_encrypt('cmd ' + reply))
