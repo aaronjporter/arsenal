@@ -16,7 +16,7 @@ def update_aeskeys():
     global aeskey, aesiv
     aeskey = os.urandom(128)
     aesiv = os.urandom(16)
-    return 'aeskey ' + key + ' ' + iv
+    return [ b'aeskey', aeskey, aesiv ]
 
 def do_encrypt(message):
     if isinstance(message, bytes):
@@ -54,10 +54,10 @@ def client(conn, addr, buff):
                 reply=input('Enter command for %s: ' %addr[0])
             except ValueError:
                 print("Bad input")
-            elif reply == 'help':
+            if reply == 'help':
                 print('update_key')
-            elif "update_key" in reply:
-                conn.send(do_encrypt(update_aeskeys(reply[1],reply[2])))
+            elif reply == "update_key":
+                conn.send(do_encrypt(update_aeskeys()))
             elif reply == '':
                 continue
             else:

