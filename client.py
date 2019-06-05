@@ -6,8 +6,8 @@ parser = argparse.ArgumentParser(description='q*bert says hello')
 parser.add_argument('-p', dest='port', required=True, type=int)
 parser.add_argument('-s', dest='server', required=True)
 args = parser.parse_args()
-aeskey = 'This is a key123'
-aesiv = 'This is an IV456'
+aeskey = b'This is a key123'
+aesiv = b'This is an IV456'
 
 def do_encrypt(message):
     if isinstance(message, bytes):
@@ -27,7 +27,8 @@ def do_decrypt(ciphertext):
     return message
 
 def main():
-    global aeskey, aesiv
+    global aeskey
+    global aesiv
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096

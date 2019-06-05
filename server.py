@@ -6,14 +6,15 @@ parser = argparse.ArgumentParser(description='q*bert says goodbye')
 parser.add_argument('-p', dest='port', help='Hosting port', required=True, type=int)
 parser.add_argument('-s', dest='host', help='Hosting IP')
 args = parser.parse_args()
-aeskey = 'This is a key123'
-aesiv = 'This is an IV456'
+aeskey = b'This is a key123'
+aesiv = b'This is an IV456'
 
 if args.host is None:
     args.host = '0.0.0.0'
 
 def update_aeskeys():
-    global aeskey, aesiv
+    global aeskey
+    global aesiv
     tmpkey, tmpiv = aeskey, aesiv
     aeskey = os.urandom(32)
     aesiv = os.urandom(16)
