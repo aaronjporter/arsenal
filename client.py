@@ -8,11 +8,14 @@ parser.add_argument('-s', dest='server', required=True)
 args = parser.parse_args()
 
 def do_encrypt(message):
-    plain = bytes(message, 'utf-8')
+    if isinstance(message, bytes):
+        continue
+    else:
+        plain = bytes(message, 'utf-8')
     length = 16 - (len(plain) % 16)
     plain += bytes([length])*length
     obj = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
-    cipher = obj.encryptplain)
+    cipher = obj.encrypt(plain)
     return cipher
 
 def main():
@@ -41,6 +44,7 @@ def main():
 
 def sendit(s, output):
     message = do_encrypt(output)
+    print(message)
     length = pack('>Q', len(message))
     s.sendall(length)
     s.sendall(message)
