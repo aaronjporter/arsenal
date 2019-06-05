@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-import socket, sys, os, subprocess, argparse, time, ast
-from struct import pack
+import socket, sys, os, subprocess, argparse, time, ast, struct
 from Crypto.Cipher import AES
 parser = argparse.ArgumentParser(description='q*bert says hello')
 parser.add_argument('-p', dest='port', required=True, type=int)
@@ -26,13 +25,13 @@ def do_decrypt(ciphertext):
     message = message[:-message[-1]]
     return message
 
-def get_data(conn):
+def get_data(conn, buff):
     bs = conn.recv(8)
     try:
         (length,) = struct.unpack('>Q', bs)
     except struct.error as err:
         print("{0}".format(err))
-        break
+        return 0
     data = b''
     while len(data) < length:
         to_read = length - len(data)
@@ -42,7 +41,7 @@ def get_data(conn):
 def sendit(conn, output):
     message = do_encrypt(output)
     print(message)
-    length = pack('>Q', len(message))
+    length = struct.pack('>Q', len(message))
     conn.sendall(length)
     conn.sendall(message)
 

