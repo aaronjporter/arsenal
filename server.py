@@ -16,7 +16,7 @@ def update_aeskeys():
     global aeskey, aesiv
     aeskey = os.urandom(128)
     aesiv = os.urandom(16)
-    return [ b'aeskey', aeskey, aesiv ]
+    return str([ b'aeskey', aeskey, aesiv ])
 
 def do_encrypt(message):
     if isinstance(message, bytes):
