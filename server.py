@@ -14,8 +14,9 @@ if args.host is None:
 
 def update_aeskeys():
     global aeskey, aesiv
-    aeskey = os.urandom(128)
+    aeskey = os.urandom(32)
     aesiv = os.urandom(16)
+    print(str([ b'aeskey', aeskey, aesiv ]))
     return str([ b'aeskey', aeskey, aesiv ])
 
 def do_encrypt(message):
