@@ -25,7 +25,7 @@ def client(conn, addr, buff):
         while len(data) < length:
             to_read = length - len(data)
             data += conn.recv(buff if to_read > buff else to_read)
-        print(addr[0]+':\n'+str(data, 'utf-8')))
+        print(addr[0]+':\n'+str(data, 'utf-8'))
         while True:
             try:
                 reply='cmd ' + input('Enter command for %s: ' %addr[0])

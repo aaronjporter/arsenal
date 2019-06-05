@@ -33,7 +33,10 @@ def main():
 def sendit(s, output):
     length = pack('>Q', len(output))
     s.sendall(length)
-    s.sendall(output)
+    if isinstance(output, bytes):
+        s.sendall(output)
+    else:
+        s.sendall(bytes(output, 'utf-8'))
 
 if __name__ == '__main__':
     main()
