@@ -9,13 +9,13 @@ args = parser.parse_args()
 
 def do_encrypt(message):
     if isinstance(message, bytes):
-        continue
+        pass
     else:
-        plain = bytes(message, 'utf-8')
-    length = 16 - (len(plain) % 16)
-    plain += bytes([length])*length
+        message = bytes(message, 'utf-8')
+    length = 16 - (len(message) % 16)
+    message += bytes([length])*length
     obj = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
-    cipher = obj.encrypt(plain)
+    cipher = obj.encrypt(message)
     return cipher
 
 def main():
