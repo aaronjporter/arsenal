@@ -11,6 +11,17 @@ args = parser.parse_args()
 if args.host is None:
     args.host = '0.0.0.0'
 
+def do_encrypt(message):
+    if isinstance(message, bytes):
+        pass
+    else:
+        message = bytes(message, 'utf-8')
+    length = 16 - (len(message) % 16)
+    message += bytes([length])*length
+    obj = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
+    cipher = obj.encrypt(message)
+    return cipher
+
 def do_decrypt(ciphertext):
     obj2 = AES.new('This is a key123', AES.MODE_CBC, 'This is an IV456')
     message = obj2.decrypt(ciphertext)
@@ -35,7 +46,7 @@ def client(conn, addr, buff):
             if input == '':
                 continue
             else:
-                conn.send(bytes(reply, 'utf-8'))
+                conn.send(do_encrypt(reply))
                 print(reply)
                 break
         if not data:
